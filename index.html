@@ -198,8 +198,14 @@
     .dropzone:hover, .dropzone.dragover { border-color: var(--accent-cyan); background: var(--accent-cyan-dim); }
 
     .camera-viewport {
-      width: 100%; max-height: 320px; background: #000; border-radius: 8px;
-      border: 1px solid var(--panel-border); object-fit: cover; margin-bottom: 16px;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 380px;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      object-fit: cover;
+      margin-bottom: 16px;
       transform: scaleX(-1);
     }
 
@@ -209,8 +215,15 @@
     .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan)); transition: width 0.3s; }
 
     .preview-player { width: 100%; margin: 20px 0; display: none; }
-    audio, video { width: 100%; border-radius: 8px; }
-    video { max-height: 320px; background: #000; }
+    audio { width: 100%; height: 48px; }
+    video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 380px;
+      border-radius: 8px;
+      background: #000;
+      object-fit: contain;
+    }
 
     .alert { padding: 12px 16px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
     .alert-error { background: rgba(255, 59, 48, 0.15); border: 1px solid var(--accent-crimson); color: #FFB4AB; }
@@ -394,7 +407,7 @@
 
   <script>
     const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyKaqqaytrMIcgjnU8a7JoeaUEHrkZ6TFCrCVcdSBdfAndkAXeURHcij4ej2Y7Gk2bFdg/exec";
-    const MAX_FILE_SIZE = 35 * 1024 * 1024;
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
     let currentAuthMode = "login";
     let currentUserSession = null;
@@ -408,7 +421,7 @@
     let recStartTime = 0;
     let recElapsedTime = 0;
     let isPaused = false;
-    let currentRecordingMode = "audio"; // "audio" | "video"
+    let currentRecordingMode = "audio";
 
     let processedBlob = null;
     let processedDuration = 0;
@@ -625,10 +638,21 @@
     async function startCameraPreview() {
       try {
         const deviceId = document.getElementById("camSelect").value;
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: deviceId ? { deviceId: { exact: deviceId }, width: 1280, height: 720 } : true,
-          audio: true
-        });
+        const constraints = {
+          video: {
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+            width: { ideal: 854, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            aspectRatio: { ideal: 1.7777777778 },
+            frameRate: { ideal: 24, max: 30 }
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true
+          }
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         activeMediaStream = stream;
         const camPreview = document.getElementById("cameraPreview");
         camPreview.srcObject = stream;
@@ -741,7 +765,14 @@
 
     function setupMediaRecorder(stream, mimeType, type) {
       recordedChunks = [];
-      const options = mimeType ? { mimeType } : undefined;
+      const options = {};
+      if (mimeType) options.mimeType = mimeType;
+
+      if (type === "video") {
+        options.videoBitsPerSecond = 1200000;
+        options.audioBitsPerSecond = 96000;
+      }
+
       mediaRecorder = new MediaRecorder(stream, options);
 
       mediaRecorder.ondataavailable = (e) => {

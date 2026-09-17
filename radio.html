@@ -70,7 +70,6 @@
       font-weight: 600; letter-spacing: 0.5px;
     }
 
-    /* Media stage: Audio vinyl or Video display */
     .media-stage {
       width: 100%;
       min-height: 280px;
@@ -108,11 +107,13 @@
 
     .video-viewport {
       width: 100%;
+      aspect-ratio: 16 / 9;
       max-height: 380px;
       border-radius: 12px;
       background: #000;
       border: 1px solid var(--border-line);
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      object-fit: contain;
       display: none;
     }
 
@@ -202,7 +203,6 @@
       <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
     </header>
 
-    <!-- Visual Container -->
     <div class="media-stage">
       <div id="vinylDiskContainer" class="deck-container">
         <div id="vinylDisk" class="vinyl">
@@ -270,7 +270,6 @@
     let audioCtx = null;
     let analyser = null;
     let audioSourceNode = null;
-    let videoSourceNode = null;
     let masterGain = null;
     let isAudioGraphSetup = false;
     let isPlaying = false;
@@ -594,9 +593,6 @@
       });
     }
 
-    /**
-     * Primary Stream Engine: Dynamically Switches between Audio and Video
-     */
     function loadAndPlayTrack(track) {
       if (!track) return;
       setupAudioPipeline();
@@ -649,9 +645,6 @@
       syncMediaSession(track);
     }
 
-    /**
-     * Proxy Fallback: Streams Base64 Chunk Data for Audio or Video
-     */
     async function fallbackStreamViaProxy(track) {
       if (!track) return;
       if (activeFetchAbortController) activeFetchAbortController.abort();
