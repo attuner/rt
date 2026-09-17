@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>PULSE RADIO // CONTRIBUTOR STUDIO</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pulse Studio">
+  <meta name="theme-color" content="#090A0F">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --bg-primary: #090A0F;
+      --bg-surface: #0E1117;
+      --panel-bg: rgba(22, 27, 34, 0.85);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00F0FF;
+      --accent-cyan-dim: rgba(0, 240, 255, 0.12);
+      --accent-violet: #7928CA;
+      --accent-crimson: #FF3B30;
+      --text-primary: #F0F6FC;
+      --text-muted: #8B949E;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(121, 40, 202, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 45%);
+      color: var(--text-primary);
+      font-family: var(--font-stack);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+      overflow-x: hidden;
+    }
+
+    .container { width: 100%; max-width: 860px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 32px; height: 32px; fill: var(--accent-cyan); }
+    .brand-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .brand-title span { color: var(--accent-cyan); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .beacon {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34C759; box-shadow: 0 0 8px #34C759;
+    }
+
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: clamp(20px, 4vw, 32px);
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .tabs {
+      display: flex; background: rgba(0, 0, 0, 0.4);
+      padding: 4px; border-radius: 10px; margin-bottom: 24px;
+      border: 1px solid var(--panel-border);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1; background: transparent; border: none;
+      color: var(--text-muted); padding: 12px 14px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border-radius: 8px; min-height: 48px; transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .tab-btn.active { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, .dropzone:focus-visible {
+      outline: 3px solid var(--accent-cyan) !important;
+      outline-offset: 3px !important;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%; background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--panel-border); border-radius: 8px;
+      padding: 14px 16px; color: var(--text-primary);
+      font-family: inherit; font-size: 0.95rem; min-height: 48px;
+      outline: none; transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 2px var(--accent-cyan-dim);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 10px; width: 100%; padding: 14px 20px; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.2s ease; border: none;
+      text-transform: uppercase; min-height: 48px;
+    }
+
+    .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), #00A3FF); color: #000; }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); }
+    .btn-danger { background: var(--accent-crimson); color: #FFF; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--panel-border); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+
+    .user-banner {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--panel-border);
+    }
+
+    .user-info h3 { font-size: 1.1rem; color: var(--text-primary); }
+    .user-info p { font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+    .logout-btn {
+      padding: 8px 16px; background: transparent; border: 1px solid var(--panel-border);
+      border-radius: 6px; color: var(--text-muted); font-size: 0.75rem; min-height: 44px; cursor: pointer;
+    }
+    .logout-btn:hover { color: var(--accent-crimson); border-color: var(--accent-crimson); }
+
+    .capacity-banner {
+      background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; font-family: var(--font-mono);
+    }
+
+    .rec-studio { display: flex; flex-direction: column; align-items: center; padding: 16px 0; }
+    .timecode { font-family: var(--font-mono); font-size: clamp(2.2rem, 5vw, 3rem); font-weight: 700; color: var(--text-primary); letter-spacing: 2px; margin: 16px 0; }
+
+    .meter-container { width: 100%; height: 10px; background: rgba(0, 0, 0, 0.6); border-radius: 5px; margin-bottom: 20px; overflow: hidden; display: flex; }
+    .meter-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #34C759 60%, #FFCC00 85%, var(--accent-crimson) 100%); will-change: width; }
+
+    .clip-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #333; color: #666; margin-bottom: 16px; font-family: var(--font-mono); }
+    .clip-badge.clipping { background: var(--accent-crimson); color: #FFF; box-shadow: 0 0 8px var(--accent-crimson); }
+
+    .scope-canvas { width: 100%; height: 100px; background: rgba(0, 0, 0, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 24px; }
+    .record-controls { display: flex; gap: 16px; width: 100%; max-width: 400px; }
+
+    .rec-circle-btn {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--bg-surface);
+      border: 2px solid var(--accent-crimson); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; margin-bottom: 20px; transition: all 0.2s;
+    }
+    .rec-circle-inner { width: 30px; height: 30px; background: var(--accent-crimson); border-radius: 50%; transition: all 0.2s; }
+    .rec-circle-btn.recording { border-color: var(--accent-crimson); box-shadow: 0 0 24px var(--accent-crimson); animation: pulseRecord 1.5s infinite; }
+    .rec-circle-btn.recording .rec-circle-inner { border-radius: 6px; transform: scale(0.8); }
+
+    @keyframes pulseRecord {
+      0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+      70% { box-shadow: 0 0 0 16px rgba(255, 59, 48, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+    }
+
+    .dropzone {
+      border: 2px dashed var(--panel-border); border-radius: 12px;
+      padding: clamp(24px, 5vw, 40px); text-align: center; cursor: pointer;
+      transition: all 0.2s; background: rgba(0, 0, 0, 0.2);
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--accent-cyan); background: var(--accent-cyan-dim); }
+
+    .camera-viewport {
+      width: 100%; max-height: 320px; background: #000; border-radius: 8px;
+      border: 1px solid var(--panel-border); object-fit: cover; margin-bottom: 16px;
+      transform: scaleX(-1);
+    }
+
+    .progress-box { margin-top: 20px; display: none; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 8px; }
+    .progress-bar-bg { height: 8px; background: rgba(0, 0, 0, 0.6); border-radius: 4px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan)); transition: width 0.3s; }
+
+    .preview-player { width: 100%; margin: 20px 0; display: none; }
+    audio, video { width: 100%; border-radius: 8px; }
+    video { max-height: 320px; background: #000; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
+    .alert-error { background: rgba(255, 59, 48, 0.15); border: 1px solid var(--accent-crimson); color: #FFB4AB; }
+    .alert-success { background: rgba(52, 199, 89, 0.15); border: 1px solid #34C759; color: #B4F8C8; }
+
+    .link-radio {
+      display: inline-flex; align-items: center; gap: 6px; color: var(--accent-cyan);
+      text-decoration: none; font-size: 0.9rem; min-height: 48px; padding: 8px 16px; margin-top: 16px;
+    }
+    .link-radio:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+        </svg>
+        <div class="brand-title">PULSE MEDIA // <span>STUDIO</span></div>
+      </div>
+      <div class="status-badge">
+        <span class="beacon"></span>
+        <span id="systemState">SYSTEM READY</span>
+      </div>
+    </header>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div id="authPanel" class="card">
+      <div class="tabs" role="tablist">
+        <button id="tabLoginBtn" class="tab-btn active" role="tab" aria-selected="true" onclick="switchAuthTab('login')">SIGN IN</button>
+        <button id="tabRegisterBtn" class="tab-btn" role="tab" aria-selected="false" onclick="switchAuthTab('register')">CREATE CONTRIBUTOR ACCOUNT</button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div id="fullNameGroup" class="form-group" style="display: none;">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" autocomplete="name" placeholder="e.g. Alex Mercer" maxlength="80">
+        </div>
+
+        <div class="form-group">
+          <label for="username">Contributor Username</label>
+          <input type="text" id="username" required autocomplete="username" placeholder="lowercase letters, numbers, underscores" maxlength="20">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Passphrase</label>
+          <input type="password" id="password" required autocomplete="current-password" placeholder="Min 8 chars: 1 upper, 1 num, 1 sym" maxlength="100">
+        </div>
+
+        <div id="confirmPassGroup" class="form-group" style="display: none;">
+          <label for="confirmPassword">Confirm Passphrase</label>
+          <input type="password" id="confirmPassword" autocomplete="new-password" placeholder="Re-enter your passphrase" maxlength="100">
+        </div>
+
+        <button type="submit" id="authSubmitBtn" class="btn btn-primary">
+          <span>SIGN IN AS CONTRIBUTOR</span>
+        </button>
+      </form>
+    </div>
+
+    <div id="studioPanel" class="card" style="display: none;">
+      <div class="user-banner">
+        <div class="user-info">
+          <h3 id="profileName">Contributor</h3>
+          <p id="profileMeta">@user - Active Contributor</p>
+        </div>
+        <button class="logout-btn" onclick="logout()">LOG OUT</button>
+      </div>
+
+      <div class="capacity-banner">
+        <span>STORAGE BUFFER: 50 TRANSMISSIONS MAX</span>
+        <span style="color:var(--accent-cyan);">FIFO ACTIVE</span>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button id="tabMicBtn" class="tab-btn active" role="tab" aria-selected="true" onclick="switchStudioTab('mic')">AUDIO MIC</button>
+        <button id="tabCamBtn" class="tab-btn" role="tab" aria-selected="false" onclick="switchStudioTab('cam')">VIDEO CAM</button>
+        <button id="tabFileBtn" class="tab-btn" role="tab" aria-selected="false" onclick="switchStudioTab('file')">FILE INGEST (A/V)</button>
+      </div>
+
+      <!-- Live Mic Console -->
+      <div id="micConsole">
+        <div class="form-group">
+          <label for="micSelect">Audio Input Hardware</label>
+          <select id="micSelect" onchange="switchMicrophoneDevice()"></select>
+        </div>
+
+        <div class="rec-studio">
+          <button id="recordTrigger" class="rec-circle-btn" onclick="toggleAudioRecording()" aria-label="Start Audio Recording">
+            <div class="rec-circle-inner"></div>
+          </button>
+          <span id="clipIndicator" class="clip-badge">0 dBFS PEAK</span>
+          <div class="timecode" id="recTimecode">00:00:00</div>
+
+          <div class="meter-container">
+            <div id="meterLevel" class="meter-bar"></div>
+          </div>
+
+          <canvas id="scopeCanvas" class="scope-canvas"></canvas>
+
+          <div class="record-controls">
+            <button id="pauseRecBtn" class="btn btn-secondary" onclick="pauseRecording()" disabled>PAUSE</button>
+            <button id="stopRecBtn" class="btn btn-danger" onclick="stopRecording()" disabled>STOP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Camera / Video Console -->
+      <div id="camConsole" style="display: none;">
+        <div class="form-group">
+          <label for="camSelect">Video Capture Source</label>
+          <select id="camSelect" onchange="switchCameraDevice()"></select>
+        </div>
+
+        <video id="cameraPreview" class="camera-viewport" autoplay playsinline muted></video>
+
+        <div class="rec-studio">
+          <button id="recordCamTrigger" class="rec-circle-btn" onclick="toggleVideoRecording()" aria-label="Start Video Recording">
+            <div class="rec-circle-inner"></div>
+          </button>
+          <div class="timecode" id="camTimecode">00:00:00</div>
+
+          <div class="record-controls">
+            <button id="pauseCamRecBtn" class="btn btn-secondary" onclick="pauseRecording()" disabled>PAUSE</button>
+            <button id="stopCamRecBtn" class="btn btn-danger" onclick="stopRecording()" disabled>STOP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master File Dropzone (Audio & Video) -->
+      <div id="fileConsole" style="display: none;">
+        <div class="dropzone" id="dropArea" tabindex="0" role="button" aria-label="Drop media file or click to select" onclick="document.getElementById('mediaFileInput').click()" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('mediaFileInput').click()">
+          <svg style="width:48px;height:48px;fill:var(--text-muted);margin-bottom:12px;" viewBox="0 0 24 24">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+          </svg>
+          <p style="font-weight:600;margin-bottom:4px;">Drag & Drop Master Audio or Video File</p>
+          <p style="font-size:0.75rem;color:var(--text-muted);">Audio: MP3, WAV, FLAC, M4A, OGG | Video: MP4, WEBM, MOV (Max 25MB)</p>
+          <input type="file" id="mediaFileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
+        </div>
+      </div>
+
+      <!-- Submission & Preview -->
+      <div id="submissionContainer" style="margin-top: 24px;">
+        <div id="previewBox" class="preview-player">
+          <label id="previewLabel">Review Media Take</label>
+          <audio id="previewAudio" controls style="display:none;"></audio>
+          <video id="previewVideo" controls playsinline style="display:none;"></video>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="trackTitle">Broadcast Transmission Title</label>
+          <input type="text" id="trackTitle" placeholder="e.g. Transmission #42: Ambient Horizons" maxlength="80">
+        </div>
+
+        <button id="publishBtn" class="btn btn-primary" onclick="initiateUploadPipeline()" disabled>
+          <span>PUBLISH TO LIVE BUFFER</span>
+        </button>
+
+        <div id="uploadProgress" class="progress-box">
+          <div class="progress-label">
+            <span id="stageLabel">Preparing...</span>
+            <span id="percentLabel">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="radio.html" class="link-radio" target="_blank">
+        <span>Go to Live Receiver & Player</span>
+        <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyKaqqaytrMIcgjnU8a7JoeaUEHrkZ6TFCrCVcdSBdfAndkAXeURHcij4ej2Y7Gk2bFdg/exec";
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
+
+    let currentAuthMode = "login";
+    let currentUserSession = null;
+    let activeMediaStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let audioContext = null;
+    let analyserNode = null;
+    let animationFrameId = null;
+    let recTimerId = null;
+    let recStartTime = 0;
+    let recElapsedTime = 0;
+    let isPaused = false;
+    let currentRecordingMode = "audio"; // "audio" | "video"
+
+    let processedBlob = null;
+    let processedDuration = 0;
+    let activePreviewBlobUrl = null;
+    let activeMediaType = "audio";
+
+    window.addEventListener("DOMContentLoaded", () => {
+      checkStoredSession();
+      initMediaDropzone();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      teardownHardwareTracks();
+    });
+
+    function showAlert(msg, isError = true) {
+      const box = document.getElementById("alertBox");
+      box.className = isError ? "alert alert-error" : "alert alert-success";
+      box.textContent = msg;
+      box.style.display = "block";
+      setTimeout(() => { box.style.display = "none"; }, 6000);
+    }
+
+    async function computeClientSha256(plaintext, salt) {
+      const encoder = new TextEncoder();
+      const payload = encoder.encode(plaintext + "::" + salt);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", payload);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function checkStoredSession() {
+      const raw = localStorage.getItem("PULSE_RADIO_AUTH_SESSION");
+      if (raw) {
+        try {
+          currentUserSession = JSON.parse(raw);
+          showStudioView();
+        } catch (e) {
+          localStorage.removeItem("PULSE_RADIO_AUTH_SESSION");
+        }
+      }
+    }
+
+    function switchAuthTab(mode) {
+      currentAuthMode = mode;
+      const isLogin = mode === "login";
+      document.getElementById("tabLoginBtn").className = isLogin ? "tab-btn active" : "tab-btn";
+      document.getElementById("tabLoginBtn").setAttribute("aria-selected", isLogin);
+      document.getElementById("tabRegisterBtn").className = !isLogin ? "tab-btn active" : "tab-btn";
+      document.getElementById("tabRegisterBtn").setAttribute("aria-selected", !isLogin);
+      document.getElementById("fullNameGroup").style.display = isLogin ? "none" : "block";
+      document.getElementById("confirmPassGroup").style.display = isLogin ? "none" : "block";
+      document.getElementById("authSubmitBtn").querySelector("span").textContent =
+        isLogin ? "SIGN IN AS CONTRIBUTOR" : "REGISTER CONTRIBUTOR";
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const user = document.getElementById("username").value.trim().toLowerCase();
+      const pass = document.getElementById("password").value;
+      const submitBtn = document.getElementById("authSubmitBtn");
+
+      if (!/^[a-z0-9_]{3,20}$/.test(user)) {
+        showAlert("Username must be 3-20 lowercase alphanumeric characters or underscores.");
+        return;
+      }
+
+      if (currentAuthMode === "register") {
+        const fullName = document.getElementById("fullName").value.trim();
+        const confPass = document.getElementById("confirmPassword").value;
+
+        if (!fullName) {
+          showAlert("Full Contributor Name is required.");
+          return;
+        }
+        if (pass.length < 8 || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass) || !/[^a-zA-Z0-9]/.test(pass)) {
+          showAlert("Password requires at least 8 chars: 1 uppercase, 1 number, and 1 symbol.");
+          return;
+        }
+        if (pass !== confPass) {
+          showAlert("Passwords do not match.");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        try {
+          const clientHash = await computeClientSha256(pass, user + "_registration_seed");
+          const resp = await executeGasRequest({
+            action: "registerUser",
+            username: user,
+            clientHash: clientHash,
+            fullName: fullName
+          });
+
+          if (resp.success) {
+            currentUserSession = resp.data;
+            localStorage.setItem("PULSE_RADIO_AUTH_SESSION", JSON.stringify(resp.data));
+            showStudioView();
+          } else {
+            showAlert(resp.error || "Registration failed.");
+          }
+        } catch (err) {
+          showAlert("Network failure during registration.");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      } else {
+        submitBtn.disabled = true;
+        try {
+          const saltResp = await executeGasRequest({ action: "getSalt", username: user }, "GET");
+          if (!saltResp.success || !saltResp.data.salt) {
+            showAlert(saltResp.error || "Failed to retrieve authentication challenge.");
+            submitBtn.disabled = false;
+            return;
+          }
+
+          const clientHash = await computeClientSha256(pass, saltResp.data.salt);
+          const resp = await executeGasRequest({
+            action: "authenticateUser",
+            username: user,
+            clientHash: clientHash
+          });
+
+          if (resp.success) {
+            currentUserSession = resp.data;
+            localStorage.setItem("PULSE_RADIO_AUTH_SESSION", JSON.stringify(resp.data));
+            showStudioView();
+          } else {
+            showAlert(resp.error || "Authentication failed.");
+          }
+        } catch (err) {
+          showAlert("Network failure during login.");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+    }
+
+    function showStudioView() {
+      document.getElementById("authPanel").style.display = "none";
+      document.getElementById("studioPanel").style.display = "block";
+      document.getElementById("profileName").textContent = currentUserSession.fullName;
+      document.getElementById("profileMeta").textContent = `@${currentUserSession.username} - Active Contributor`;
+      initHardwareInputs();
+    }
+
+    function logout() {
+      teardownHardwareTracks();
+      if (activePreviewBlobUrl) {
+        URL.revokeObjectURL(activePreviewBlobUrl);
+        activePreviewBlobUrl = null;
+      }
+      localStorage.removeItem("PULSE_RADIO_AUTH_SESSION");
+      currentUserSession = null;
+      location.reload();
+    }
+
+    function switchStudioTab(tab) {
+      teardownHardwareTracks();
+      const tabs = ["mic", "cam", "file"];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
+        const consoleEl = document.getElementById(`${t}Console`);
+        const isActive = t === tab;
+        if (btn) {
+          btn.className = isActive ? "tab-btn active" : "tab-btn";
+          btn.setAttribute("aria-selected", isActive);
+        }
+        if (consoleEl) {
+          consoleEl.style.display = isActive ? "block" : "none";
+        }
+      });
+
+      if (tab === "cam") {
+        startCameraPreview();
+      }
+    }
+
+    function teardownHardwareTracks() {
+      if (activeMediaStream) {
+        activeMediaStream.getTracks().forEach(t => t.stop());
+        activeMediaStream = null;
+      }
+      const camPreview = document.getElementById("cameraPreview");
+      if (camPreview) camPreview.srcObject = null;
+    }
+
+    async function initHardwareInputs() {
+      try {
+        const temp = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        temp.getTracks().forEach(t => t.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const micSelect = document.getElementById("micSelect");
+        const camSelect = document.getElementById("camSelect");
+        micSelect.innerHTML = "";
+        camSelect.innerHTML = "";
+
+        devices.forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d.deviceId;
+          if (d.kind === "audioinput") {
+            opt.textContent = d.label || `Microphone ${micSelect.length + 1}`;
+            micSelect.appendChild(opt);
+          } else if (d.kind === "videoinput") {
+            opt.textContent = d.label || `Camera ${camSelect.length + 1}`;
+            camSelect.appendChild(opt);
+          }
+        });
+      } catch (err) {
+        showAlert("Camera or Microphone permission denied.");
+      }
+    }
+
+    async function startCameraPreview() {
+      try {
+        const deviceId = document.getElementById("camSelect").value;
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: deviceId ? { deviceId: { exact: deviceId }, width: 1280, height: 720 } : true,
+          audio: true
+        });
+        activeMediaStream = stream;
+        const camPreview = document.getElementById("cameraPreview");
+        camPreview.srcObject = stream;
+      } catch (err) {
+        showAlert("Camera preview error: " + err.message);
+      }
+    }
+
+    function switchMicrophoneDevice() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        showAlert("Stop recording prior to switching hardware devices.");
+        return;
+      }
+      teardownHardwareTracks();
+    }
+
+    function switchCameraDevice() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        showAlert("Stop recording prior to switching hardware devices.");
+        return;
+      }
+      teardownHardwareTracks();
+      startCameraPreview();
+    }
+
+    /* Audio Recording */
+    function toggleAudioRecording() {
+      if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        startAudioRecording();
+      }
+    }
+
+    async function startAudioRecording() {
+      try {
+        teardownHardwareTracks();
+        currentRecordingMode = "audio";
+        const deviceId = document.getElementById("micSelect").value;
+        const constraints = {
+          audio: {
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+            echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 48000
+          }
+        };
+
+        activeMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        const sourceNode = audioContext.createMediaStreamSource(activeMediaStream);
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 256;
+        sourceNode.connect(analyserNode);
+
+        let mimeType = "audio/webm;codecs=opus";
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = MediaRecorder.isTypeSupported("audio/ogg;codecs=opus") ? "audio/ogg;codecs=opus" : "audio/mp4";
+        }
+
+        setupMediaRecorder(activeMediaStream, mimeType, "audio");
+        mediaRecorder.start(250);
+
+        recStartTime = Date.now();
+        recElapsedTime = 0;
+        recTimerId = setInterval(() => updateTimer("recTimecode"), 100);
+
+        document.getElementById("recordTrigger").classList.add("recording");
+        document.getElementById("pauseRecBtn").disabled = false;
+        document.getElementById("stopRecBtn").disabled = false;
+        document.getElementById("publishBtn").disabled = true;
+
+        renderScope();
+      } catch (err) {
+        showAlert("Failed to start audio recorder: " + err.message);
+      }
+    }
+
+    /* Video Recording */
+    function toggleVideoRecording() {
+      if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        startVideoRecording();
+      }
+    }
+
+    async function startVideoRecording() {
+      try {
+        currentRecordingMode = "video";
+        if (!activeMediaStream) {
+          await startCameraPreview();
+        }
+
+        let mimeType = 'video/webm;codecs=vp8,opus';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : '';
+        }
+
+        setupMediaRecorder(activeMediaStream, mimeType, "video");
+        mediaRecorder.start(250);
+
+        recStartTime = Date.now();
+        recElapsedTime = 0;
+        recTimerId = setInterval(() => updateTimer("camTimecode"), 100);
+
+        document.getElementById("recordCamTrigger").classList.add("recording");
+        document.getElementById("pauseCamRecBtn").disabled = false;
+        document.getElementById("stopCamRecBtn").disabled = false;
+        document.getElementById("publishBtn").disabled = true;
+      } catch (err) {
+        showAlert("Failed to start video recorder: " + err.message);
+      }
+    }
+
+    function setupMediaRecorder(stream, mimeType, type) {
+      recordedChunks = [];
+      const options = mimeType ? { mimeType } : undefined;
+      mediaRecorder = new MediaRecorder(stream, options);
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const finalType = mimeType || (type === "video" ? "video/webm" : "audio/webm");
+        processedBlob = new Blob(recordedChunks, { type: finalType });
+        activeMediaType = type;
+        processedDuration = Math.round(recElapsedTime / 1000);
+
+        displayPreview(processedBlob, type);
+      };
+    }
+
+    function pauseRecording() {
+      if (!mediaRecorder) return;
+      const isAudio = currentRecordingMode === "audio";
+      const pauseBtn = document.getElementById(isAudio ? "pauseRecBtn" : "pauseCamRecBtn");
+
+      if (!isPaused) {
+        mediaRecorder.pause();
+        clearInterval(recTimerId);
+        isPaused = true;
+        pauseBtn.textContent = "RESUME";
+      } else {
+        mediaRecorder.resume();
+        recStartTime = Date.now() - recElapsedTime;
+        recTimerId = setInterval(() => updateTimer(isAudio ? "recTimecode" : "camTimecode"), 100);
+        isPaused = false;
+        pauseBtn.textContent = "PAUSE";
+      }
+    }
+
+    function stopRecording() {
+      if (!mediaRecorder) return;
+      mediaRecorder.stop();
+      clearInterval(recTimerId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      teardownHardwareTracks();
+
+      document.getElementById("recordTrigger").classList.remove("recording");
+      document.getElementById("recordCamTrigger").classList.remove("recording");
+      document.getElementById("pauseRecBtn").disabled = true;
+      document.getElementById("stopRecBtn").disabled = true;
+      document.getElementById("pauseCamRecBtn").disabled = true;
+      document.getElementById("stopCamRecBtn").disabled = true;
+      document.getElementById("meterLevel").style.width = "0%";
+      recElapsedTime = 0;
+    }
+
+    function updateTimer(elementId) {
+      recElapsedTime = Date.now() - recStartTime;
+      const totalSeconds = Math.floor(recElapsedTime / 1000);
+      const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+      const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      const secs = String(totalSeconds % 60).padStart(2, "0");
+      document.getElementById(elementId).textContent = `${hrs}:${mins}:${secs}`;
+    }
+
+    function displayPreview(blob, type) {
+      if (activePreviewBlobUrl) URL.revokeObjectURL(activePreviewBlobUrl);
+      activePreviewBlobUrl = URL.createObjectURL(blob);
+
+      const previewBox = document.getElementById("previewBox");
+      const audioEl = document.getElementById("previewAudio");
+      const videoEl = document.getElementById("previewVideo");
+
+      previewBox.style.display = "block";
+      document.getElementById("publishBtn").disabled = false;
+
+      if (type === "video") {
+        audioEl.style.display = "none";
+        audioEl.pause();
+        videoEl.style.display = "block";
+        videoEl.src = activePreviewBlobUrl;
+      } else {
+        videoEl.style.display = "none";
+        videoEl.pause();
+        audioEl.style.display = "block";
+        audioEl.src = activePreviewBlobUrl;
+      }
+    }
+
+    function renderScope() {
+      const canvas = document.getElementById("scopeCanvas");
+      const ctx = canvas.getContext("2d");
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        animationFrameId = requestAnimationFrame(draw);
+        analyserNode.getByteTimeDomainData(dataArray);
+
+        let sum = 0;
+        let peak = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const val = (dataArray[i] - 128) / 128;
+          sum += val * val;
+          if (Math.abs(val) > peak) peak = Math.abs(val);
+        }
+        const rms = Math.sqrt(sum / bufferLength);
+        const meterPct = Math.min(100, Math.round(rms * 250));
+        document.getElementById("meterLevel").style.width = meterPct + "%";
+
+        const clip = document.getElementById("clipIndicator");
+        if (peak > 0.95) {
+          clip.classList.add("clipping");
+          clip.textContent = "PEAK CLIPPING!";
+        } else {
+          clip.classList.remove("clipping");
+          clip.textContent = `${Math.round(peak * 100)}% PEAK`;
+        }
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#00F0FF";
+        ctx.beginPath();
+
+        const sliceWidth = canvas.width / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = (v * canvas.height) / 2;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          x += sliceWidth;
+        }
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+      }
+      draw();
+    }
+
+    function initMediaDropzone() {
+      const dropzone = document.getElementById("dropArea");
+      ["dragenter", "dragover"].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.add("dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove("dragover");
+        });
+      });
+      dropzone.addEventListener("drop", (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) processSelectedFile(files[0]);
+      });
+    }
+
+    function handleFileSelect(e) {
+      if (e.target.files.length > 0) processSelectedFile(e.target.files[0]);
+    }
+
+    async function processSelectedFile(file) {
+      const isAudio = file.type.startsWith("audio/") || file.name.match(/\.(mp3|wav|ogg|webm|m4a|flac)$/i);
+      const isVideo = file.type.startsWith("video/") || file.name.match(/\.(mp4|webm|mov|mkv)$/i);
+
+      if (!isAudio && !isVideo) {
+        showAlert("Unsupported file format. Please upload audio or video.");
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        showAlert("File exceeds strict 25MB limit.");
+        return;
+      }
+
+      processedBlob = file;
+      activeMediaType = isVideo ? "video" : "audio";
+      displayPreview(file, activeMediaType);
+
+      const probe = document.createElement(activeMediaType);
+      probe.src = URL.createObjectURL(file);
+      probe.addEventListener("loadedmetadata", () => {
+        processedDuration = isFinite(probe.duration) ? probe.duration : 0;
+      });
+    }
+
+    function arrayBufferToBase64(buffer) {
+      let binary = "";
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      const chunkSize = 8192;
+      for (let i = 0; i < len; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunkSize, len)));
+      }
+      return btoa(binary);
+    }
+
+    async function initiateUploadPipeline() {
+      if (!processedBlob) {
+        showAlert("No media available to publish.");
+        return;
+      }
+      const titleInput = document.getElementById("trackTitle");
+      const title = titleInput.value.trim() || "Untitled Broadcast";
+
+      const publishBtn = document.getElementById("publishBtn");
+      const progressBox = document.getElementById("uploadProgress");
+      const stageLabel = document.getElementById("stageLabel");
+      const percentLabel = document.getElementById("percentLabel");
+      const progressBar = document.getElementById("progressBar");
+
+      publishBtn.disabled = true;
+      progressBox.style.display = "block";
+
+      function setProgress(stage, pct) {
+        stageLabel.textContent = stage;
+        percentLabel.textContent = pct + "%";
+        progressBar.style.width = pct + "%";
+      }
+
+      try {
+        setProgress("Stage 1/4: Reading binary buffer...", 20);
+        const arrayBuffer = await processedBlob.arrayBuffer();
+
+        setProgress("Stage 2/4: Chunk-encoding Base64 stream...", 45);
+        const base64Data = arrayBufferToBase64(arrayBuffer);
+
+        setProgress("Stage 3/4: Transmitting payload...", 70);
+        const payload = {
+          action: "uploadMedia",
+          auth: {
+            username: currentUserSession.username,
+            token: currentUserSession.token
+          },
+          metadata: {
+            title: title,
+            fileName: processedBlob.name || (activeMediaType === "video" ? "broadcast_cam.webm" : "broadcast_mic.webm"),
+            mediaType: activeMediaType,
+            mimeType: processedBlob.type || (activeMediaType === "video" ? "video/webm" : "audio/webm"),
+            durationSeconds: Math.round(processedDuration),
+            sizeBytes: processedBlob.size
+          },
+          fileData: base64Data
+        };
+
+        setProgress("Stage 4/4: Executing atomic FIFO rotation...", 90);
+        const response = await executeGasRequest(payload);
+
+        if (response.success) {
+          setProgress("Broadcast Published Successfully!", 100);
+          showAlert("Transmission is live!", false);
+          setTimeout(() => { location.reload(); }, 2000);
+        } else {
+          showAlert(response.error || "Upload failed on server.");
+          publishBtn.disabled = false;
+        }
+      } catch (err) {
+        showAlert("Upload transmission error: " + err.message);
+        publishBtn.disabled = false;
+      }
+    }
+
+    async function executeGasRequest(data, method = "POST", maxRetries = 3) {
+      let delay = 1500;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          let url = GAS_ENDPOINT_URL;
+          let options = { method: method, mode: "cors" };
+
+          if (method === "GET") {
+            const params = new URLSearchParams(data).toString();
+            url += (url.includes("?") ? "&" : "?") + params;
+          } else {
+            options.headers = { "Content-Type": "text/plain;charset=utf-8" };
+            options.body = JSON.stringify(data);
+          }
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 45000);
+          options.signal = controller.signal;
+
+          const res = await fetch(url, options);
+          clearTimeout(timeoutId);
+          return await res.json();
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
