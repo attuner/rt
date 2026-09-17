@@ -44,7 +44,7 @@
       overflow-x: hidden;
     }
 
-    .container { width: 100%; max-width: 780px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 860px; display: flex; flex-direction: column; align-items: center; }
 
     header {
       width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
@@ -70,19 +70,56 @@
       font-weight: 600; letter-spacing: 0.5px;
     }
 
+    /* FULL HD RATIO THEATRE STAGE */
     .media-stage {
       width: 100%;
-      min-height: 280px;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border: 1px solid var(--border-line);
+      border-radius: 14px;
+      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.85);
+      position: relative;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       margin: 16px 0;
-      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .media-stage:hover {
+      border-color: rgba(0, 240, 255, 0.35);
+    }
+
+    .media-stage:fullscreen,
+    .media-stage:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-viewport {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      background: #000;
+      display: none;
     }
 
     .deck-container {
-      position: relative; width: clamp(220px, 45vw, 280px); height: clamp(220px, 45vw, 280px);
-      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      width: clamp(180px, 35vw, 250px);
+      height: clamp(180px, 35vw, 250px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .vinyl {
@@ -105,19 +142,45 @@
 
     .center-hole { width: 16px; height: 16px; background: #000; border-radius: 50%; }
 
-    .video-viewport {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      max-height: 380px;
-      border-radius: 12px;
-      background: #000;
-      border: 1px solid var(--border-line);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-      object-fit: contain;
-      display: none;
+    /* OVERLAY CONTROLS FOR FULLSCREEN & ORIENTATION */
+    .stage-overlay {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
     }
 
-    .vis-canvas { width: 100%; height: 80px; margin: 8px 0; border-radius: 8px; }
+    .stage-overlay:hover { opacity: 1; }
+
+    .stage-btn {
+      background: rgba(14, 17, 23, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-line);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stage-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      transform: scale(1.08);
+    }
+
+    .stage-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .vis-canvas { width: 100%; height: 70px; margin: 8px 0; border-radius: 8px; }
 
     .meta-panel { text-align: center; margin-bottom: 20px; width: 100%; }
     .track-title { font-size: clamp(1.15rem, 3.5vw, 1.45rem); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; color: var(--text-main); }
@@ -203,7 +266,17 @@
       <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
     </header>
 
-    <div class="media-stage">
+    <!-- FULL HD (16:9) RATIO STAGE WITH FULLSCREEN ON CLICK -->
+    <div id="mediaStage" class="media-stage" onclick="handleStageClick(event)" title="Click to expand Fullscreen">
+      <div class="stage-overlay">
+        <button class="stage-btn" onclick="toggleOrientation(event)" title="Rotate Screen Orientation" aria-label="Rotate Orientation">
+          <svg viewBox="0 0 24 24"><path d="M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.51-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.89-1.6-1.01-2.47zm10.8 2.47c.51-.75.88-1.6 1.02-2.47h2.02c-.17 1.39-.72 2.73-1.62 3.89l-1.42-1.42zm1.02-4.47c-.14-.87-.51-1.72-1.02-2.47l1.42-1.42c.9 1.16 1.45 2.5 1.62 3.89h-2.02zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        </button>
+        <button class="stage-btn" onclick="toggleFullScreenMode(event)" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+          <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+      </div>
+
       <div id="vinylDiskContainer" class="deck-container">
         <div id="vinylDisk" class="vinyl">
           <div class="vinyl-label">
@@ -279,6 +352,7 @@
     let activeFetchAbortController = null;
     let userBaseVolume = 0.80;
     let cachedManifestEtag = null;
+    let currentOrientationState = "landscape";
 
     let listenerSessionId = localStorage.getItem("PULSE_RADIO_LISTENER_ID");
     if (!listenerSessionId) {
@@ -301,6 +375,7 @@
       initVisibilityChangeHandler();
       initProgressBarSeek();
       initRemoteDpadKeys();
+      initFullScreenListeners();
 
       if (isTV) {
         const c = document.getElementById("visCanvas");
@@ -316,6 +391,85 @@
       toast.textContent = message;
       toast.classList.add("visible");
       setTimeout(() => { toast.classList.remove("visible"); }, 4000);
+    }
+
+    /* FULLSCREEN & ORIENTATION ENGINE */
+    function handleStageClick(e) {
+      // Don't trigger if user specifically clicked an overlay button
+      if (e.target.closest(".stage-btn")) return;
+      toggleFullScreenMode(e);
+    }
+
+    function toggleFullScreenMode(e) {
+      if (e) e.stopPropagation();
+      const stage = document.getElementById("mediaStage");
+
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (stage.requestFullscreen) {
+          stage.requestFullscreen().catch(() => {});
+        } else if (stage.webkitRequestFullscreen) {
+          stage.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    function initFullScreenListeners() {
+      document.addEventListener("fullscreenchange", updateFSIcon);
+      document.addEventListener("webkitfullscreenchange", updateFSIcon);
+    }
+
+    function updateFSIcon() {
+      const fsIcon = document.getElementById("fsIcon");
+      const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (isFS) {
+        fsIcon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-14v3h3v2h-5V5h2z"/>';
+      } else {
+        fsIcon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+      }
+    }
+
+    async function toggleOrientation(e) {
+      if (e) e.stopPropagation();
+      const stage = document.getElementById("mediaStage");
+
+      // Request fullscreen first if orientation locking requires active fullscreen
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        try {
+          if (stage.requestFullscreen) await stage.requestFullscreen();
+          else if (stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
+        } catch (err) {}
+      }
+
+      currentOrientationState = currentOrientationState === "landscape" ? "portrait" : "landscape";
+
+      if (screen.orientation && screen.orientation.lock) {
+        try {
+          await screen.orientation.lock(currentOrientationState);
+          showToast(`Locked to ${currentOrientationState.toUpperCase()} mode`);
+        } catch (err) {
+          applyCSSFallbackRotation(stage);
+        }
+      } else {
+        applyCSSFallbackRotation(stage);
+      }
+    }
+
+    function applyCSSFallbackRotation(stage) {
+      if (currentOrientationState === "portrait") {
+        stage.style.aspectRatio = "9 / 16";
+        stage.style.maxHeight = "540px";
+        showToast("Switched to PORTRAIT view");
+      } else {
+        stage.style.aspectRatio = "16 / 9";
+        stage.style.maxHeight = "none";
+        showToast("Switched to FULL HD LANDSCAPE");
+      }
     }
 
     function setupAudioPipeline() {

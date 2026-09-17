@@ -44,14 +44,14 @@ function handleRequest(e, method) {
         responseData = handleAuthenticateUser(params);
         break;
       case "uploadMedia":
-      case "uploadAudioTrack": // Backward compatibility
+      case "uploadAudioTrack":
         responseData = handleMediaUpload(params);
         break;
       case "getLiveManifest":
         responseData = handleGetLiveManifest(params.listenerId, params.etag);
         break;
       case "streamMedia":
-      case "streamAudio": // Backward compatibility
+      case "streamAudio":
         responseData = handleStreamMedia(params.fileId);
         break;
       default:
@@ -258,7 +258,89 @@ function enforceFifoCapacity(sheet) {
   }
 }
 
+/**
+ * On-demand lazy reconciliation: syncs Google Drive additions/deletions
+ * into the MEDIA_BUFFER sheet automatically without background triggers.
+ */
+function reconcileDriveFolderWithSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("MEDIA_BUFFER");
+  if (!sheet) return;
+
+  const folder = getMediaFolder();
+
+  // 1. Map all active (non-trashed) files currently in the folder
+  const activeFilesInFolder = new Map();
+  const folderFiles = folder.getFiles();
+  while (folderFiles.hasNext()) {
+    const f = folderFiles.next();
+    if (!f.isTrashed()) {
+      activeFilesInFolder.set(f.getId(), f);
+    }
+  }
+
+  // 2. Scan sheet rows bottom-to-top to prune removed or trashed items
+  const data = sheet.getDataRange().getValues();
+  const existingSheetFileIds = new Set();
+
+  for (let i = data.length - 1; i >= 1; i--) {
+    const fileId = String(data[i][1]).trim();
+    let fileExistsAndActive = false;
+
+    if (activeFilesInFolder.has(fileId)) {
+      fileExistsAndActive = true;
+    } else {
+      try {
+        const driveFile = DriveApp.getFileById(fileId);
+        if (!driveFile.isTrashed()) {
+          fileExistsAndActive = true;
+        }
+      } catch (e) {
+        fileExistsAndActive = false;
+      }
+    }
+
+    if (!fileExistsAndActive) {
+      sheet.deleteRow(i + 1);
+    } else {
+      existingSheetFileIds.add(fileId);
+    }
+  }
+
+  // 3. Register any new files dropped into the folder
+  activeFilesInFolder.forEach((file, fileId) => {
+    if (!existingSheetFileIds.has(fileId)) {
+      const mime = file.getMimeType();
+      const isVideo = mime.startsWith("video/");
+      const isAudio = mime.startsWith("audio/");
+
+      if (isVideo || isAudio) {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+        sheet.appendRow([
+          "med_" + Utilities.getUuid().substring(0, 10),
+          fileId,
+          file.getName().replace(/\.[^/.]+$/, ""),
+          file.getName(),
+          isVideo ? "video" : "audio",
+          mime,
+          0,
+          file.getSize(),
+          "admin",
+          "Station Manager",
+          new Date().toISOString()
+        ]);
+      }
+    }
+  });
+
+  enforceFifoCapacity(sheet);
+}
+
 function handleGetLiveManifest(listenerId, incomingEtag) {
+  // Reconcile changes directly when the station manifest is queried
+  reconcileDriveFolderWithSheet();
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
   // Track active listeners
