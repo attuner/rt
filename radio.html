@@ -70,7 +70,7 @@
       font-weight: 600; letter-spacing: 0.5px;
     }
 
-    /* FULL HD RATIO THEATRE STAGE */
+    /* FULL HD (16:9) RATIO STAGE */
     .media-stage {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -266,7 +266,7 @@
       <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
     </header>
 
-    <!-- FULL HD (16:9) RATIO STAGE WITH FULLSCREEN ON CLICK -->
+    <!-- FULL HD THEATRE STAGE -->
     <div id="mediaStage" class="media-stage" onclick="handleStageClick(event)" title="Click to expand Fullscreen">
       <div class="stage-overlay">
         <button class="stage-btn" onclick="toggleOrientation(event)" title="Rotate Screen Orientation" aria-label="Rotate Orientation">
@@ -343,6 +343,7 @@
     let audioCtx = null;
     let analyser = null;
     let audioSourceNode = null;
+    let videoSourceNode = null;
     let masterGain = null;
     let isAudioGraphSetup = false;
     let isPlaying = false;
@@ -393,9 +394,8 @@
       setTimeout(() => { toast.classList.remove("visible"); }, 4000);
     }
 
-    /* FULLSCREEN & ORIENTATION ENGINE */
+    /* FULLSCREEN & ORIENTATION CONTROLS */
     function handleStageClick(e) {
-      // Don't trigger if user specifically clicked an overlay button
       if (e.target.closest(".stage-btn")) return;
       toggleFullScreenMode(e);
     }
@@ -438,7 +438,6 @@
       if (e) e.stopPropagation();
       const stage = document.getElementById("mediaStage");
 
-      // Request fullscreen first if orientation locking requires active fullscreen
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         try {
           if (stage.requestFullscreen) await stage.requestFullscreen();
@@ -622,6 +621,7 @@
       }
     }
 
+    /* SEQUENTIAL PLAYBACK ENGINE AS IN RADIO-2 */
     function reconcileIncomingManifest(incomingTracks) {
       if (incomingTracks.length === 0) {
         document.getElementById("currentTitle").textContent = "Station Idle: No active broadcasts found.";
