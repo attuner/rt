@@ -104,10 +104,11 @@
       justify-content: center;
     }
 
+    /* ZOOM & COVER FULL VIEWPORT WIDTH */
     .video-viewport {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center;
       background: #000;
       display: none;
@@ -142,7 +143,6 @@
 
     .center-hole { width: 16px; height: 16px; background: #000; border-radius: 50%; }
 
-    /* OVERLAY CONTROLS FOR FULLSCREEN & ORIENTATION */
     .stage-overlay {
       position: absolute;
       top: 12px;
@@ -266,7 +266,6 @@
       <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
     </header>
 
-    <!-- FULL HD THEATRE STAGE -->
     <div id="mediaStage" class="media-stage" onclick="handleStageClick(event)" title="Click to expand Fullscreen">
       <div class="stage-overlay">
         <button class="stage-btn" onclick="toggleOrientation(event)" title="Rotate Screen Orientation" aria-label="Rotate Orientation">
@@ -343,7 +342,6 @@
     let audioCtx = null;
     let analyser = null;
     let audioSourceNode = null;
-    let videoSourceNode = null;
     let masterGain = null;
     let isAudioGraphSetup = false;
     let isPlaying = false;
@@ -621,7 +619,7 @@
       }
     }
 
-    /* SEQUENTIAL PLAYBACK ENGINE AS IN RADIO-2 */
+    /* CONTINUOUS AUTOMATIC PLAYBACK ENGINE (AS IN RADIO-2) */
     function reconcileIncomingManifest(incomingTracks) {
       if (incomingTracks.length === 0) {
         document.getElementById("currentTitle").textContent = "Station Idle: No active broadcasts found.";
@@ -669,6 +667,7 @@
       }
     }
 
+    /* MANUAL NAVIGATION PRESERVES THE AUTOMATIC TIMERS */
     function skipToNextTrack() {
       if (currentQueue.length === 0) return;
       const finished = currentQueue[currentTrackIndex];
