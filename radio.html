@@ -14,9 +14,10 @@
   <style>
     :root {
       --bg-primary: #090A0F;
-      --bg-card: rgba(22, 27, 34, 0.85);
+      --bg-card: rgba(22, 27, 34, 0.9);
       --border-line: rgba(255, 255, 255, 0.08);
       --accent-cyan: #00F0FF;
+      --accent-cyan-dim: rgba(0, 240, 255, 0.15);
       --accent-violet: #7928CA;
       --accent-crimson: #FF3B30;
       --text-main: #F0F6FC;
@@ -36,25 +37,48 @@
       font-family: var(--font-ui);
       min-height: 100vh;
       min-height: 100dvh;
+      width: 100vw;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      padding: calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+      padding-top: calc(64px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+      padding-left: calc(12px + env(safe-area-inset-left, 0px));
+      padding-right: calc(12px + env(safe-area-inset-right, 0px));
       overflow-x: hidden;
     }
 
-    .container { width: 100%; max-width: 860px; display: flex; flex-direction: column; align-items: center; }
-
-    header {
-      width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    /* 3) FIXED TOP BANNER: LIVE STATUS & LISTENER COUNT */
+    header.fixed-top-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(56px + env(safe-area-inset-top, 0px));
+      padding: env(safe-area-inset-top, 0px) 20px 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(9, 10, 15, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-line);
+      z-index: 1000;
     }
 
     .live-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
-      background: rgba(255, 59, 48, 0.15); border: 1px solid var(--accent-crimson);
-      border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem;
-      font-weight: 700; color: var(--accent-crimson); letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid var(--accent-crimson);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-crimson);
+      letter-spacing: 1px;
     }
 
     .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-crimson); box-shadow: 0 0 8px var(--accent-crimson); }
@@ -66,8 +90,20 @@
     }
 
     .listeners-count {
-      font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan);
-      font-weight: 600; letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* 5) VIEWPORT WIDTH FIT */
+    .container {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     /* FULL HD (16:9) THEATRE STAGE */
@@ -84,13 +120,11 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      margin: 16px 0;
+      margin: 8px 0 14px 0;
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    .media-stage:hover {
-      border-color: rgba(0, 240, 255, 0.35);
-    }
+    .media-stage:hover { border-color: rgba(0, 240, 255, 0.35); }
 
     .media-stage:fullscreen,
     .media-stage:-webkit-full-screen {
@@ -104,7 +138,6 @@
       justify-content: center;
     }
 
-    /* ZOOM AND COVER VIEWPORT WIDTH */
     .video-viewport {
       width: 100%;
       height: 100%;
@@ -116,8 +149,8 @@
 
     .deck-container {
       position: relative;
-      width: clamp(180px, 35vw, 250px);
-      height: clamp(180px, 35vw, 250px);
+      width: clamp(160px, 32vw, 240px);
+      height: clamp(160px, 32vw, 240px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -180,92 +213,150 @@
 
     .stage-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
-    .vis-canvas { width: 100%; height: 70px; margin: 8px 0; border-radius: 8px; }
+    /* 1) VISUALIZER ALWAYS PRESENT (EVEN WITH VIDEO) */
+    .vis-canvas {
+      width: 100%;
+      height: 72px;
+      margin: 4px 0 12px 0;
+      border-radius: 8px;
+      display: block;
+    }
 
-    .meta-panel { text-align: center; margin-bottom: 20px; width: 100%; }
+    .meta-panel { text-align: center; margin-bottom: 12px; width: 100%; }
     .track-title { font-size: clamp(1.15rem, 3.5vw, 1.45rem); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; color: var(--text-main); }
     .track-contributor { font-size: 0.9rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-bottom: 4px; }
     .track-time { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
 
-    .live-progress-container { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin-bottom: 24px; cursor: pointer; }
+    .live-progress-container { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin-bottom: 8px; cursor: pointer; }
     .live-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan)); transition: width 0.25s linear; }
 
-    .controls { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 4vw, 24px); margin-bottom: 28px; }
-    .ctrl-btn {
-      background: var(--bg-card); border: 1px solid var(--border-line); color: var(--text-main);
-      width: 56px; height: 56px; min-width: 48px; min-height: 48px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+    /* 2) FIXED BOTTOM NAVIGATION BAR WITH CONTROLS & SEQUENCE MODE */
+    .fixed-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(9, 10, 15, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-line);
+      padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px)) 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
+
+    .controls-wrapper {
+      width: 100%;
+      max-width: 780px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 3vw, 22px);
+      margin: 0 auto;
+    }
+
+    .ctrl-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      color: var(--text-main);
+      width: 50px;
+      height: 50px;
+      min-width: 48px;
+      min-height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
     .ctrl-btn:hover { border-color: var(--accent-cyan); transform: scale(1.05); }
 
     .ctrl-btn.btn-play {
-      width: 76px; height: 76px; background: var(--accent-cyan); color: #000; border: none;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      width: 64px;
+      height: 64px;
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
     }
-    .ctrl-btn.btn-play:hover { box-shadow: 0 0 30px rgba(0, 240, 255, 0.6); transform: scale(1.06); }
 
-    .ctrl-btn svg { width: 24px; height: 24px; fill: currentColor; }
-    .btn-play svg { width: 32px; height: 32px; }
+    .ctrl-btn.btn-play:hover { box-shadow: 0 0 24px rgba(0, 240, 255, 0.6); transform: scale(1.06); }
+    .ctrl-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    .btn-play svg { width: 28px; height: 28px; }
+
+    /* 6) PLAY SEQUENCE MODE TOGGLE (NORMAL VS SHUFFLE) */
+    .mode-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 44px;
+    }
+
+    .mode-toggle-btn.active {
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      background: var(--accent-cyan-dim);
+    }
+
+    .mode-toggle-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
     button:focus-visible, input:focus-visible {
       outline: 3px solid var(--accent-cyan) !important;
       outline-offset: 4px !important;
     }
 
-    .volume-group { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; width: 100%; max-width: 280px; }
-    .volume-slider {
-      flex: 1; height: 6px; -webkit-appearance: none; background: rgba(255, 255, 255, 0.15);
-      border-radius: 3px; outline: none;
-    }
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-      background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 8px var(--accent-cyan);
-    }
-
-    .queue-panel {
-      width: 100%; background: var(--bg-card); backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border-line);
-      border-radius: 16px; padding: clamp(16px, 3vw, 24px); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .queue-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--border-line);
-    }
-
-    .queue-header h4 { font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; font-family: var(--font-mono); color: var(--text-muted); }
-    .queue-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
-
-    .queue-item {
-      display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;
-      background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-line); border-radius: 8px; font-size: 0.85rem;
-    }
-
-    .queue-left { display: flex; align-items: center; gap: 12px; }
-    .queue-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-weight: 700; background: rgba(255, 255, 255, 0.1); color: var(--text-muted); }
-    .queue-tag.video { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); }
-
     .toast {
-      position: fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-      background: rgba(22, 27, 34, 0.96); border: 1px solid var(--accent-cyan); color: var(--text-main);
-      padding: 12px 24px; border-radius: 8px; font-size: 0.85rem; font-family: var(--font-mono);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7); transform: translateY(120px); transition: transform 0.3s ease;
-      z-index: 1000; max-width: 90vw;
+      position: fixed;
+      bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      background: rgba(22, 27, 34, 0.96);
+      border: 1px solid var(--accent-cyan);
+      color: var(--text-main);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      transform: translateY(140px);
+      transition: transform 0.3s ease;
+      z-index: 1001;
+      max-width: 90vw;
     }
     .toast.visible { transform: translateY(0); }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <div class="live-badge">
-        <span id="liveDot" class="live-dot"></span>
-        <span id="liveStatusText">STANDBY</span>
-      </div>
-      <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
-    </header>
+  <!-- 3) FIXED TOP BANNER -->
+  <header class="fixed-top-banner">
+    <div class="live-badge">
+      <span id="liveDot" class="live-dot"></span>
+      <span id="liveStatusText">STANDBY</span>
+    </div>
+    <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
+  </header>
 
+  <!-- 5) FIT TO VIEWPORT WIDTH CONTAINER -->
+  <div class="container">
     <div id="mediaStage" class="media-stage" onclick="handleStageClick(event)" title="Click to expand Fullscreen">
       <div class="stage-overlay">
         <button class="stage-btn" onclick="toggleOrientation(event)" title="Rotate Screen Orientation" aria-label="Rotate Orientation">
@@ -284,9 +375,10 @@
         </div>
       </div>
 
-      <video id="radioVideo" class="video-viewport" playsinline webkit-playsinline></video>
+      <video id="radioVideo" class="video-viewport" playsinline webkit-playsinline preload="auto"></video>
     </div>
 
+    <!-- 1) VISCANVAS PERSISTS DURING VIDEO AND AUDIO -->
     <canvas id="visCanvas" class="vis-canvas"></canvas>
 
     <div class="meta-panel">
@@ -298,39 +390,40 @@
     <div class="live-progress-container" id="progressBarContainer">
       <div id="streamProgressBar" class="live-progress-bar"></div>
     </div>
-
-    <div class="controls">
-      <button class="ctrl-btn" onclick="skipToPreviousTrack()" title="Previous Transmission" aria-label="Previous Track">
-        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-      </button>
-
-      <button id="masterPlayBtn" class="ctrl-btn btn-play" onclick="togglePlayback()" title="Tune In / Play" aria-label="Play or Pause">
-        <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-
-      <button class="ctrl-btn" onclick="skipToNextTrack()" title="Next Transmission" aria-label="Next Track">
-        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-      </button>
-    </div>
-
-    <div class="volume-group">
-      <svg style="width:18px;height:18px;fill:var(--text-muted);" viewBox="0 0 24 24">
-        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-      </svg>
-      <input type="range" id="volSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.80" aria-label="Volume Slider" oninput="handleVolumeChange(event)">
-    </div>
-
-    <div class="queue-panel">
-      <div class="queue-header">
-        <h4>Recently Played (Last 3 Transmissions)</h4>
-        <span id="historyCount" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);">0 Records</span>
-      </div>
-      <ul id="recentlyPlayedList" class="queue-list"></ul>
-    </div>
   </div>
+
+  <!-- 2) FIXED BOTTOM NAVIGATION BAR FOR CONTROLS -->
+  <footer class="fixed-bottom-bar">
+    <div class="controls-wrapper">
+      <!-- 6) PLAYBACK SEQUENCE SELECTOR -->
+      <button id="modeToggleBtn" class="mode-toggle-btn" onclick="togglePlayMode()" title="Toggle Sequence Mode (Normal vs Shuffle)">
+        <svg id="modeIcon" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+        <span id="modeLabel">NORMAL</span>
+      </button>
+
+      <div class="controls">
+        <button class="ctrl-btn" onclick="skipToPreviousTrack()" title="Previous Transmission" aria-label="Previous Track">
+          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+
+        <button id="masterPlayBtn" class="ctrl-btn btn-play" onclick="togglePlayback()" title="Tune In / Play" aria-label="Play or Pause">
+          <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+
+        <button class="ctrl-btn" onclick="skipToNextTrack()" title="Next Transmission" aria-label="Next Track">
+          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+      <div style="width: 88px; text-align: right;">
+        <span id="queueCountReadout" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">0 MEDIA</span>
+      </div>
+    </div>
+  </footer>
 
   <div id="toastNotification" class="toast"></div>
 
+  <!-- NATIVE AUDIO CARRIER -->
   <audio id="radioAudio" playsinline webkit-playsinline preload="auto" crossorigin="anonymous"></audio>
 
   <script>
@@ -342,6 +435,7 @@
     let audioCtx = null;
     let analyser = null;
     let audioSourceNode = null;
+    let videoSourceNode = null;
     let masterGain = null;
     let isAudioGraphSetup = false;
     let isPlaying = false;
@@ -349,9 +443,12 @@
     let animationFrame = null;
     let currentBlobUrl = null;
     let activeFetchAbortController = null;
-    let userBaseVolume = 0.80;
     let cachedManifestEtag = null;
     let currentOrientationState = "landscape";
+
+    // Sequence Mode: "normal" (Latest -> Oldest) or "shuffle" (Randomized)
+    let playMode = "normal";
+    let unplayedShuffleIndices = [];
 
     let listenerSessionId = localStorage.getItem("PULSE_RADIO_LISTENER_ID");
     if (!listenerSessionId) {
@@ -361,7 +458,6 @@
 
     let currentQueue = [];
     let priorityQueue = [];
-    let recentlyPlayedHistory = [];
     let pollTimerId = null;
 
     const audioElement = document.getElementById("radioAudio");
@@ -376,11 +472,6 @@
       initRemoteDpadKeys();
       initFullScreenListeners();
 
-      if (isTV) {
-        const c = document.getElementById("visCanvas");
-        if (c) c.style.display = "none";
-      }
-
       fetchLiveManifest();
       pollTimerId = setInterval(fetchLiveManifest, POLL_INTERVAL);
     });
@@ -389,9 +480,37 @@
       const toast = document.getElementById("toastNotification");
       toast.textContent = message;
       toast.classList.add("visible");
-      setTimeout(() => { toast.classList.remove("visible"); }, 4000);
+      setTimeout(() => { toast.classList.remove("visible"); }, 3500);
     }
 
+    /* 6) PLAY MODE SWITCHER */
+    function togglePlayMode() {
+      playMode = (playMode === "normal") ? "shuffle" : "normal";
+      const btn = document.getElementById("modeToggleBtn");
+      const label = document.getElementById("modeLabel");
+
+      if (playMode === "shuffle") {
+        btn.classList.add("active");
+        label.textContent = "SHUFFLE";
+        initShufflePool();
+        showToast("Switched to SHUFFLE mode");
+      } else {
+        btn.classList.remove("active");
+        label.textContent = "NORMAL";
+        showToast("Switched to NORMAL mode (Latest to Oldest)");
+      }
+    }
+
+    function initShufflePool() {
+      unplayedShuffleIndices = currentQueue.map((_, idx) => idx).filter(i => i !== currentTrackIndex);
+      // Fisher-Yates Shuffle
+      for (let i = unplayedShuffleIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unplayedShuffleIndices[i], unplayedShuffleIndices[j]] = [unplayedShuffleIndices[j], unplayedShuffleIndices[i]];
+      }
+    }
+
+    /* FULLSCREEN & ORIENTATION CONTROLS */
     function handleStageClick(e) {
       if (e.target.closest(".stage-btn")) return;
       toggleFullScreenMode(e);
@@ -402,17 +521,11 @@
       const stage = document.getElementById("mediaStage");
 
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (stage.requestFullscreen) {
-          stage.requestFullscreen().catch(() => {});
-        } else if (stage.webkitRequestFullscreen) {
-          stage.webkitRequestFullscreen();
-        }
+        if (stage.requestFullscreen) stage.requestFullscreen().catch(() => {});
+        else if (stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       }
     }
 
@@ -468,6 +581,7 @@
       }
     }
 
+    /* 1) UNIFIED AUDIO PIPELINE: FEEDS BOTH AUDIO & VIDEO INTO VISUALIZER */
     function setupAudioPipeline() {
       if (isAudioGraphSetup) {
         if (audioCtx && audioCtx.state === "suspended") {
@@ -482,14 +596,18 @@
 
         audioCtx = new AudioContextClass();
         masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(userBaseVolume, audioCtx.currentTime);
+        masterGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
 
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.85;
+        analyser.smoothingTimeConstant = 0.82;
 
         audioSourceNode = audioCtx.createMediaElementSource(audioElement);
         audioSourceNode.connect(analyser);
+
+        // Also connect video element to analyzer so visualizer works on video
+        videoSourceNode = audioCtx.createMediaElementSource(videoElement);
+        videoSourceNode.connect(analyser);
 
         analyser.connect(masterGain);
         masterGain.connect(audioCtx.destination);
@@ -502,7 +620,7 @@
 
         if (!isTV) renderVisualizer();
       } catch (err) {
-        console.warn("Audio hardware fallback active:", err);
+        console.warn("Audio pipeline setup notice:", err);
       }
     }
 
@@ -525,7 +643,7 @@
         if (el !== activeElement) return;
         const err = el.error;
         if (err && err.code === MediaError.MEDIA_ERR_ABORTED) return;
-        console.warn("Media error, executing proxy fallback...", e);
+        console.warn("Media error, falling back to proxy stream...", e);
         if (currentQueue.length > 0 && isPlaying) {
           fallbackStreamViaProxy(currentQueue[currentTrackIndex]);
         }
@@ -618,7 +736,7 @@
       }
     }
 
-    /* REVERSE CHRONOLOGICAL ORDER: LATEST -> OLDEST */
+    /* 6) RECONCILE: LATEST TO OLDEST BY DEFAULT */
     function reconcileIncomingManifest(incomingTracks) {
       if (incomingTracks.length === 0) {
         document.getElementById("currentTitle").textContent = "Station Idle: No active broadcasts found.";
@@ -626,60 +744,83 @@
         return;
       }
 
-      // Reverse manifest array so index 0 is latest entry, descending to oldest
-      const chronologicallyOrdered = incomingTracks.slice().reverse();
+      // Reverse so index 0 = latest entry, descending to oldest
+      const latestToOldest = incomingTracks.slice().reverse();
+      document.getElementById("queueCountReadout").textContent = `${latestToOldest.length} MEDIA`;
 
       if (currentQueue.length === 0) {
-        currentQueue = chronologicallyOrdered;
+        currentQueue = latestToOldest;
         currentTrackIndex = 0;
         const initial = currentQueue[0];
         document.getElementById("currentTitle").textContent = initial.title || initial.fileName;
         document.getElementById("currentContributor").textContent = `READY // @${initial.uploaderUsername} (${initial.uploaderName})`;
+        preloadNextTrack();
         return;
       }
 
       const existingIds = new Set(currentQueue.map(t => t.contentId));
-      const newlyAddedTracks = chronologicallyOrdered.filter(t => !existingIds.has(t.contentId));
+      const newlyAddedTracks = latestToOldest.filter(t => !existingIds.has(t.contentId));
 
-      // Newly discovered uploads enter priority queue to play next immediately
+      // Newly added items enter priority queue to play next immediately
       if (newlyAddedTracks.length > 0) {
         newlyAddedTracks.forEach(newTrack => priorityQueue.push(newTrack));
         showToast("New transmission received! Up next immediately.");
       }
 
       const activeContentId = currentQueue[currentTrackIndex]?.contentId;
-      currentQueue = chronologicallyOrdered;
+      currentQueue = latestToOldest;
 
       const newIndex = currentQueue.findIndex(t => t.contentId === activeContentId);
       if (newIndex !== -1) {
         currentTrackIndex = newIndex;
       }
+
+      if (playMode === "shuffle" && unplayedShuffleIndices.length === 0) {
+        initShufflePool();
+      }
     }
 
+    /* 6) TRACK TRANSITION LOGIC */
     function handleTrackEnded() {
-      const finished = currentQueue[currentTrackIndex];
-      if (finished) recordTrackToRecentlyPlayed(finished);
-
-      // If a newly uploaded track is waiting in priorityQueue, play it immediately
+      // 1. Play priority new media immediately
       if (priorityQueue.length > 0) {
         const next = priorityQueue.shift();
         const foundIndex = currentQueue.findIndex(t => t.contentId === next.contentId);
         currentTrackIndex = (foundIndex !== -1) ? foundIndex : 0;
         loadAndPlayTrack(next);
+        return;
+      }
+
+      // 2. Play according to selected mode
+      if (playMode === "shuffle") {
+        if (unplayedShuffleIndices.length === 0) {
+          initShufflePool();
+        }
+        if (unplayedShuffleIndices.length > 0) {
+          currentTrackIndex = unplayedShuffleIndices.pop();
+          loadAndPlayTrack(currentQueue[currentTrackIndex]);
+        } else {
+          skipToNextTrack();
+        }
       } else {
-        // Otherwise, advance through the normal sequence (latest -> older)
+        // Normal Mode: Step to next older track (latest to oldest)
         skipToNextTrack();
       }
     }
 
     function skipToNextTrack() {
       if (currentQueue.length === 0) return;
-      const finished = currentQueue[currentTrackIndex];
-      if (finished && isPlaying) recordTrackToRecentlyPlayed(finished);
 
-      // Step toward older tracks; wrap back to 0 (latest) when reaching the end
-      currentTrackIndex++;
-      if (currentTrackIndex >= currentQueue.length) currentTrackIndex = 0;
+      if (playMode === "shuffle") {
+        if (unplayedShuffleIndices.length === 0) initShufflePool();
+        if (unplayedShuffleIndices.length > 0) {
+          currentTrackIndex = unplayedShuffleIndices.pop();
+        }
+      } else {
+        currentTrackIndex++;
+        if (currentTrackIndex >= currentQueue.length) currentTrackIndex = 0;
+      }
+
       loadAndPlayTrack(currentQueue[currentTrackIndex]);
     }
 
@@ -690,65 +831,26 @@
       loadAndPlayTrack(currentQueue[currentTrackIndex]);
     }
 
-    function recordTrackToRecentlyPlayed(track) {
-      recentlyPlayedHistory.unshift({
-        title: track.title || track.fileName,
-        uploaderUsername: track.uploaderUsername,
-        mediaType: track.mediaType || "audio",
-        durationSeconds: track.durationSeconds || 0,
-        completedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
+    /* 7) REDUCE STANDBY TIME: DIRECT STREAMING & CACHE PRELOADING */
+    function preloadNextTrack() {
+      if (currentQueue.length <= 1) return;
+      let nextIndex = (playMode === "shuffle" && unplayedShuffleIndices.length > 0)
+        ? unplayedShuffleIndices[unplayedShuffleIndices.length - 1]
+        : (currentTrackIndex + 1) % currentQueue.length;
 
-      if (recentlyPlayedHistory.length > 3) recentlyPlayedHistory.pop();
-      renderRecentlyPlayedList();
-    }
+      const nextTrack = currentQueue[nextIndex];
+      if (!nextTrack) return;
 
-    function renderRecentlyPlayedList() {
-      const list = document.getElementById("recentlyPlayedList");
-      list.innerHTML = "";
-      document.getElementById("historyCount").textContent = `${recentlyPlayedHistory.length} / 3 Logged`;
+      // Inject low-overhead browser link preload hint
+      let existingPreload = document.getElementById("nextMediaPreload");
+      if (existingPreload) existingPreload.remove();
 
-      if (recentlyPlayedHistory.length === 0) {
-        const empty = document.createElement("li");
-        empty.style.cssText = "font-size:0.8rem;color:var(--text-muted);padding:8px 0;";
-        empty.textContent = "No completed transmissions yet.";
-        list.appendChild(empty);
-        return;
-      }
-
-      recentlyPlayedHistory.forEach((item) => {
-        const li = document.createElement("li");
-        li.className = "queue-item";
-
-        const left = document.createElement("div");
-        left.className = "queue-left";
-
-        const tag = document.createElement("span");
-        tag.className = item.mediaType === "video" ? "queue-tag video" : "queue-tag";
-        tag.textContent = item.mediaType.toUpperCase();
-
-        const meta = document.createElement("div");
-        const title = document.createElement("div");
-        title.style.fontWeight = "600";
-        title.textContent = item.title;
-
-        const sub = document.createElement("div");
-        sub.style.cssText = "font-size:0.75rem;color:var(--text-muted);";
-        sub.textContent = `@${item.uploaderUsername} • ${item.completedAt}`;
-
-        meta.appendChild(title);
-        meta.appendChild(sub);
-        left.appendChild(tag);
-        left.appendChild(meta);
-
-        const dur = document.createElement("div");
-        dur.style.cssText = "font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);";
-        dur.textContent = formatTime(item.durationSeconds);
-
-        li.appendChild(left);
-        li.appendChild(dur);
-        list.appendChild(li);
-      });
+      const preloadLink = document.createElement("link");
+      preloadLink.id = "nextMediaPreload";
+      preloadLink.rel = "preload";
+      preloadLink.as = (nextTrack.mediaType === "video") ? "video" : "audio";
+      preloadLink.href = `https://drive.google.com/uc?export=download&id=${encodeURIComponent(nextTrack.fileId)}`;
+      document.head.appendChild(preloadLink);
     }
 
     function loadAndPlayTrack(track) {
@@ -770,24 +872,21 @@
 
       const isVideo = track.mediaType === "video";
       const vinylDiskContainer = document.getElementById("vinylDiskContainer");
-      const visCanvas = document.getElementById("visCanvas");
 
       audioElement.pause();
       videoElement.pause();
 
       if (isVideo) {
         vinylDiskContainer.style.display = "none";
-        visCanvas.style.display = "none";
         videoElement.style.display = "block";
         activeElement = videoElement;
       } else {
         videoElement.style.display = "none";
         vinylDiskContainer.style.display = "flex";
-        if (!isTV) visCanvas.style.display = "block";
         activeElement = audioElement;
       }
 
-      activeElement.volume = userBaseVolume;
+      // Fast Direct Google Drive Byte Stream (Instant Range Streaming)
       activeElement.src = `https://drive.google.com/uc?export=download&id=${encodeURIComponent(track.fileId)}`;
       activeElement.load();
 
@@ -795,12 +894,13 @@
       if (playPromise !== undefined) {
         playPromise.catch((err) => {
           if (err.name === "AbortError") return;
-          console.warn("Direct media stream failed, falling back to proxy...", err);
+          console.warn("Direct stream note, falling back to proxy...", err);
           fallbackStreamViaProxy(track);
         });
       }
 
       syncMediaSession(track);
+      preloadNextTrack();
     }
 
     async function fallbackStreamViaProxy(track) {
@@ -865,16 +965,6 @@
       }
     }
 
-    function handleVolumeChange(e) {
-      userBaseVolume = Math.max(0, Math.min(1, parseFloat(e.target.value)));
-      if (masterGain && audioCtx) {
-        const logGain = userBaseVolume === 0 ? 0 : Math.pow(userBaseVolume, 2);
-        masterGain.gain.setValueAtTime(logGain, audioCtx.currentTime);
-      }
-      audioElement.volume = userBaseVolume;
-      videoElement.volume = userBaseVolume;
-    }
-
     function updatePlayStateUI() {
       const disk = document.getElementById("vinylDisk");
       const playIcon = document.getElementById("playIcon");
@@ -894,6 +984,7 @@
       }
     }
 
+    /* 1) RENDER VISUALIZER CONTINUOUSLY FOR BOTH AUDIO AND VIDEO */
     function renderVisualizer() {
       if (isTV || !analyser) return;
 
@@ -909,7 +1000,7 @@
 
       function draw() {
         animationFrame = requestAnimationFrame(draw);
-        if (document.hidden || activeElement === videoElement) return;
+        if (document.hidden) return;
 
         analyser.getByteFrequencyData(dataArray);
         ctx.resetTransform();
@@ -939,7 +1030,7 @@
         if (document.hidden) {
           if (animationFrame) cancelAnimationFrame(animationFrame);
         } else {
-          if (analyser && !isTV && activeElement === audioElement) renderVisualizer();
+          if (analyser && !isTV) renderVisualizer();
         }
       });
     }
