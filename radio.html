@@ -70,7 +70,7 @@
       font-weight: 600; letter-spacing: 0.5px;
     }
 
-    /* FULL HD (16:9) RATIO STAGE */
+    /* FULL HD (16:9) THEATRE STAGE */
     .media-stage {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -104,7 +104,7 @@
       justify-content: center;
     }
 
-    /* ZOOM & COVER FULL VIEWPORT WIDTH */
+    /* ZOOM AND COVER VIEWPORT WIDTH */
     .video-viewport {
       width: 100%;
       height: 100%;
@@ -392,7 +392,6 @@
       setTimeout(() => { toast.classList.remove("visible"); }, 4000);
     }
 
-    /* FULLSCREEN & ORIENTATION CONTROLS */
     function handleStageClick(e) {
       if (e.target.closest(".stage-btn")) return;
       toggleFullScreenMode(e);
@@ -619,7 +618,7 @@
       }
     }
 
-    /* CONTINUOUS AUTOMATIC PLAYBACK ENGINE (AS IN RADIO-2) */
+    /* REVERSE CHRONOLOGICAL ORDER: LATEST -> OLDEST */
     function reconcileIncomingManifest(incomingTracks) {
       if (incomingTracks.length === 0) {
         document.getElementById("currentTitle").textContent = "Station Idle: No active broadcasts found.";
@@ -627,8 +626,11 @@
         return;
       }
 
+      // Reverse manifest array so index 0 is latest entry, descending to oldest
+      const chronologicallyOrdered = incomingTracks.slice().reverse();
+
       if (currentQueue.length === 0) {
-        currentQueue = incomingTracks;
+        currentQueue = chronologicallyOrdered;
         currentTrackIndex = 0;
         const initial = currentQueue[0];
         document.getElementById("currentTitle").textContent = initial.title || initial.fileName;
@@ -637,15 +639,16 @@
       }
 
       const existingIds = new Set(currentQueue.map(t => t.contentId));
-      const newlyAddedTracks = incomingTracks.filter(t => !existingIds.has(t.contentId));
+      const newlyAddedTracks = chronologicallyOrdered.filter(t => !existingIds.has(t.contentId));
 
+      // Newly discovered uploads enter priority queue to play next immediately
       if (newlyAddedTracks.length > 0) {
         newlyAddedTracks.forEach(newTrack => priorityQueue.push(newTrack));
         showToast("New transmission received! Up next immediately.");
       }
 
       const activeContentId = currentQueue[currentTrackIndex]?.contentId;
-      currentQueue = incomingTracks;
+      currentQueue = chronologicallyOrdered;
 
       const newIndex = currentQueue.findIndex(t => t.contentId === activeContentId);
       if (newIndex !== -1) {
@@ -657,22 +660,24 @@
       const finished = currentQueue[currentTrackIndex];
       if (finished) recordTrackToRecentlyPlayed(finished);
 
+      // If a newly uploaded track is waiting in priorityQueue, play it immediately
       if (priorityQueue.length > 0) {
         const next = priorityQueue.shift();
-        const found = currentQueue.findIndex(t => t.contentId === next.contentId);
-        if (found !== -1) currentTrackIndex = found;
+        const foundIndex = currentQueue.findIndex(t => t.contentId === next.contentId);
+        currentTrackIndex = (foundIndex !== -1) ? foundIndex : 0;
         loadAndPlayTrack(next);
       } else {
+        // Otherwise, advance through the normal sequence (latest -> older)
         skipToNextTrack();
       }
     }
 
-    /* MANUAL NAVIGATION PRESERVES THE AUTOMATIC TIMERS */
     function skipToNextTrack() {
       if (currentQueue.length === 0) return;
       const finished = currentQueue[currentTrackIndex];
       if (finished && isPlaying) recordTrackToRecentlyPlayed(finished);
 
+      // Step toward older tracks; wrap back to 0 (latest) when reaching the end
       currentTrackIndex++;
       if (currentTrackIndex >= currentQueue.length) currentTrackIndex = 0;
       loadAndPlayTrack(currentQueue[currentTrackIndex]);
