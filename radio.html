@@ -5,11 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>PULSE BROADCAST // LIVE MEDIA STREAM</title>
 
+  <!-- Repeated, so hidden.
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Pulse Media">
   <meta name="theme-color" content="#090A0F">
   <meta name="mobile-web-app-capable" content="yes">
+  -->
+
+  <!-- Inside <head> of radio.html -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pulse Radio">
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch((err) => {
+        console.warn("ServiceWorker registration failed: ", err);
+      });
+    });
+  }
+</script>
 
   <style>
     :root {

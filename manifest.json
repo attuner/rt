@@ -1,0 +1,19 @@
+{
+  "name": "Pulse Broadcast // Live Media Stream",
+  "short_name": "Pulse Radio",
+  "description": "Live continuous audio and video broadcast stream receiver",
+  "start_url": "radio.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090A0F",
+  "theme_color": "#090A0F",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23090A0F'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300F0FF' stroke-width='24'/%3E%3Cpolygon points='210,160 350,256 210,352' fill='%2300F0FF'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
