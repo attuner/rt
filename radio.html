@@ -70,6 +70,7 @@
       font-weight: 600; letter-spacing: 0.5px;
     }
 
+    /* FULL HD RATIO THEATRE STAGE */
     .media-stage {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -141,6 +142,7 @@
 
     .center-hole { width: 16px; height: 16px; background: #000; border-radius: 50%; }
 
+    /* OVERLAY CONTROLS FOR FULLSCREEN & ORIENTATION */
     .stage-overlay {
       position: absolute;
       top: 12px;
@@ -264,6 +266,7 @@
       <div class="listeners-count" id="listenerReadout">LISTENERS: 1 ACTIVE</div>
     </header>
 
+    <!-- FULL HD (16:9) RATIO STAGE WITH FULLSCREEN ON CLICK -->
     <div id="mediaStage" class="media-stage" onclick="handleStageClick(event)" title="Click to expand Fullscreen">
       <div class="stage-overlay">
         <button class="stage-btn" onclick="toggleOrientation(event)" title="Rotate Screen Orientation" aria-label="Rotate Orientation">
@@ -390,7 +393,9 @@
       setTimeout(() => { toast.classList.remove("visible"); }, 4000);
     }
 
+    /* FULLSCREEN & ORIENTATION ENGINE */
     function handleStageClick(e) {
+      // Don't trigger if user specifically clicked an overlay button
       if (e.target.closest(".stage-btn")) return;
       toggleFullScreenMode(e);
     }
@@ -433,6 +438,7 @@
       if (e) e.stopPropagation();
       const stage = document.getElementById("mediaStage");
 
+      // Request fullscreen first if orientation locking requires active fullscreen
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         try {
           if (stage.requestFullscreen) await stage.requestFullscreen();
@@ -588,10 +594,10 @@
       }
     }
 
-    async function fetchLiveManifest(forceRefresh = false) {
+    async function fetchLiveManifest() {
       try {
         let endpoint = `${GAS_ENDPOINT_URL}?action=getLiveManifest&listenerId=${encodeURIComponent(listenerSessionId)}`;
-        if (cachedManifestEtag && !forceRefresh) {
+        if (cachedManifestEtag) {
           endpoint += `&etag=${encodeURIComponent(cachedManifestEtag)}`;
         }
 
@@ -604,7 +610,7 @@
               `LISTENERS: ${json.data.activeListeners} ACTIVE`;
           }
 
-          if (json.data.notModified && !forceRefresh) return;
+          if (json.data.notModified) return;
           if (json.data.etag) cachedManifestEtag = json.data.etag;
 
           if (json.data.manifest) {
@@ -649,29 +655,15 @@
       }
     }
 
-    async function handleTrackEnded() {
+    function handleTrackEnded() {
       const finished = currentQueue[currentTrackIndex];
       if (finished) recordTrackToRecentlyPlayed(finished);
 
-      // Force an immediate fetch without cache to catch uploads that finished while track was playing
-      await fetchLiveManifest(true);
-
-      // 1. Check priority queue for newly detected uploads
       if (priorityQueue.length > 0) {
         const next = priorityQueue.shift();
         const found = currentQueue.findIndex(t => t.contentId === next.contentId);
-        currentTrackIndex = (found !== -1) ? found : 0;
+        if (found !== -1) currentTrackIndex = found;
         loadAndPlayTrack(next);
-        return;
-      }
-
-      // 2. Play the newest track at the end of currentQueue if not already played
-      const latestTrackIndex = currentQueue.length - 1;
-      const isAlreadyOnLatest = currentTrackIndex === latestTrackIndex;
-
-      if (!isAlreadyOnLatest && latestTrackIndex >= 0) {
-        currentTrackIndex = latestTrackIndex;
-        loadAndPlayTrack(currentQueue[currentTrackIndex]);
       } else {
         skipToNextTrack();
       }
